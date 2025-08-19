@@ -300,17 +300,18 @@
     
         try {
           const res = await fetch(
-            "https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/pay",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                apikey: ANON_KEY,
-                Authorization: "Bearer " + ANON_KEY,
-              },
-              body: JSON.stringify({ email, amount }),
-            }
-          );
+  "https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/create-payment-form",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: ANON_KEY,
+      Authorization: "Bearer " + ANON_KEY,
+    },
+    body: JSON.stringify({ email }),
+  }
+);
+
     
           const data = await res.json();
           console.log("api response:", data);
