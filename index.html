@@ -150,6 +150,19 @@
       text-align:center; padding:16px; margin-top:28px;
       font-size:14px; box-shadow:0 -2px 6px var(--ring);
     }
+/* 禁用按鈕的外觀 */
+.btn[aria-disabled="true"]{
+  opacity:.5;
+  pointer-events:none;   /* 直接擋點擊 */
+  filter:grayscale(.3);
+}
+
+/* 無效 email 的輸入框樣式（可選） */
+input[type="email"].invalid{
+  border-color:#e66464;
+  background:#fff5f5;
+}
+
   </style>
 </head>
 <body>
@@ -287,35 +300,62 @@
     (function () {
       console.log("payment script loaded");
     
-      // 你的 Supabase anon key（跟你 curl 成功用的一樣）
+      // Supabase anon key
       const ANON_KEY =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY";
     
-      async function startPay() {
-        const emailInput = document.querySelector("input[type='email']");
-        const email = (emailInput?.value || "test@example.com").trim();
-        const amount = 199;
+      const emailInput = document.querySelector("#email");
+      const buyButtons = Array.from(document.querySelectorAll(".buy-now"));
+      const amount = 199;
     
-        console.log("buy-now clicked", { email, amount });
+      // 僅允許 @gmail.com
+      const isGmail = (v) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(v?.trim() || "");
+    
+      // 切換兩顆「立即購買」的可用狀態
+      function toggleBuyEnabled(enabled) {
+        buyButtons.forEach((btn) => btn.setAttribute("aria-disabled", String(!enabled)));
+      }
+    
+      // 依輸入自動驗證與切換
+      function validateEmail() {
+        const value = emailInput?.value || "";
+        const ok = isGmail(value);
+        if (emailInput) emailInput.classList.toggle("invalid", !ok && value !== "");
+        toggleBuyEnabled(ok);
+        return ok;
+      }
+    
+      // 初始與輸入時驗證
+      validateEmail();
+      emailInput?.addEventListener("input", validateEmail);
+    
+      async function startPay() {
+        const email = (emailInput?.value || "").trim();
+    
+        // 再保險一次（使用者可能手動繞過）
+        if (!isGmail(email)) {
+          alert("請輸入有效的 Gmail（例：yourname@gmail.com）");
+          emailInput?.focus();
+          return;
+        }
     
         try {
           const res = await fetch(
-  "https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/create-payment-form",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: "Bearer " + ANON_KEY,
-    },
-    body: JSON.stringify({ email }),
-  }
-);
-
+            "https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/pay",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + ANON_KEY,
+              },
+              body: JSON.stringify({ email, amount }),
+            }
+          );
     
           const data = await res.json();
           console.log("api response:", data);
     
-          // 1) 正式（藍新）—— 自動組 form 並 POST 送出
+          // 1) 正式（藍新）—— 後端回 gateway + fields，就自動組 form 送出
           if (data?.gateway && data?.fields) {
             const form = document.createElement("form");
             form.method = "POST";
@@ -334,7 +374,7 @@
             return;
           }
     
-          // 2) 測試（mock）—— 直接導到假網址
+          // 2) 測試（mock）—— 後端回 url 就直接導向
           if (data?.url) {
             window.location.href = data.url;
             return;
@@ -347,30 +387,37 @@
         }
       }
     
-      // 事件委派：保證子元素點擊也會觸發
+      // 捕捉兩顆「立即購買」的點擊
       document.addEventListener(
         "click",
         (e) => {
           const btn = e.target.closest(".buy-now");
           if (!btn) return;
+    
+          // 若當前是禁用狀態，直接攔住
+          if (btn.getAttribute("aria-disabled") === "true") {
+            e.preventDefault();
+            validateEmail(); // 讓使用者看到欄位變紅
+            return;
+          }
+    
           e.preventDefault();
           startPay();
         },
         true
       );
     
-      // 保險：把 .buy-now 的 button 強制改成 type="button"，避免表單原生 submit 阻斷流程
-      document.querySelectorAll(".buy-now").forEach((btn) => {
+      // 保險：把 .buy-now 設為不會觸發原生 submit / 導航
+      buyButtons.forEach((btn) => {
         if (btn.tagName === "BUTTON" && btn.getAttribute("type") !== "button") {
           btn.setAttribute("type", "button");
         }
-        // 如果是 <a>，避免沒有 href 造成導航異常
         if (btn.tagName === "A" && !btn.getAttribute("href")) {
           btn.setAttribute("href", "#");
         }
       });
     })();
-    </script>        
+    </script>    
     
 </body>
 </html>
