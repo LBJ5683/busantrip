@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>釜山五日行程 | JieJourneys</title>
+  <link rel="preload" as="image" href="assets/logo.jpg">
+  <link rel="preload" as="image" href="assets/preview.png">
+  <style>
+    :root{
+      --brand:#2c3e50;
+      --ink:#333;
+      --bg:#fafafa;
+      --card:#fff;
+      --muted:#777;
+      --cta:#1f7a8c;         /* 主要按鈕 */
+      --cta-hover:#176070;
+      --accent:#f6f9ff;      /* 淺色區塊 */
+      --price:#ff6b3d;       /* 價格顏色 */
+      --ring:rgba(0,0,0,.08);
+      --radius:12px;
+    }
+    *{box-sizing:border-box}
+    body{
+      font-family: ui-sans-serif,system-ui,Arial,"Noto Sans TC",Helvetica,sans-serif;
+      margin:0; color:var(--ink); background:var(--bg);
+      line-height:1.55;
+    }
+    a{color:var(--brand); text-decoration:none}
+    img{max-width:100%; display:block}
+
+    /* Header */
+    header{
+      position:sticky; top:0; z-index:10;
+      background:var(--card);
+      padding:12px 20px;
+      box-shadow:0 2px 6px var(--ring);
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--brand)}
+    .brand img{height:40px; border-radius:8px}
+    .header-btn{
+      background:#f1f3ff; color:var(--brand);
+      padding:8px 12px; border-radius:8px; font-size:14px;
+    }
+
+    .container{max-width:1100px; margin:auto; padding:20px}
+
+    h1,h2{color:var(--brand); margin:0 0 10px}
+    p{margin:8px 0}
+
+    /* 購買盒 */
+    .buy-box{
+      background:var(--card); border-radius:var(--radius);
+      box-shadow:0 2px 8px rgba(0,0,0,.08);
+      padding:20px; display:grid; grid-template-columns:1fr 320px; gap:20px;
+      align-items:start;
+    }
+    @media (max-width:900px){ .buy-box{grid-template-columns:1fr} }
+
+    .hero{
+      background:var(--accent);
+      border:1px solid rgba(0,0,0,.05);
+      border-radius:10px; padding:12px;
+    }
+    .badges{display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+    .badge{
+      font-size:12px; padding:5px 8px; border-radius:999px;
+      background:#fff; border:1px solid rgba(0,0,0,.06)
+    }
+    .price{color:var(--price); font-weight:800; font-size:22px; margin-top:6px}
+
+    .form{
+      background:var(--card); border:1px solid rgba(0,0,0,.06);
+      border-radius:10px; padding:14px;
+    }
+    .form label{display:block; font-size:12px; color:#555; margin-bottom:6px}
+    .form input{
+      width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:8px;
+      font-size:14px; margin-bottom:10px;
+    }
+    .btn{
+      display:inline-block; background:var(--cta); color:#fff;
+      padding:12px 16px; border-radius:10px; font-weight:700; text-align:center;
+    }
+    .btn:hover{background:var(--cta-hover)}
+    .secure{display:flex; align-items:center; gap:6px; color:#4b5563; font-size:12px; margin-top:6px}
+
+    .preview{
+      border-radius:10px; overflow:hidden; box-shadow:0 4px 16px rgba(0,0,0,.08);
+    }
+
+    /* 特色區塊 */
+    .section{margin-top:26px}
+    .section .sub{color:#556; font-size:14px; margin-top:-4px}
+    .features{
+      display:grid; gap:16px; margin-top:14px;
+      grid-template-columns:repeat(3,1fr);
+    }
+    @media (max-width:992px){ .features{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:600px){ .features{grid-template-columns:1fr} }
+
+    .feature{
+      background:var(--card); border-radius:12px; padding:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,.08); text-align:left;
+    }
+    .thumb{
+      width:100%; aspect-ratio:16/9; object-fit:cover; object-position:center;
+      border-radius:8px; margin-bottom:10px; background:#eee;
+    }
+    .title{
+      display:flex; align-items:center; gap:8px; margin:4px 0 6px;
+      font-weight:700; color:#1a1a1a;
+    }
+    .title .icon{font-size:18px}
+    .feature p{font-size:14px; color:#444; margin:0}
+
+    /* 社會證明 */
+    .social-proof{
+      display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:12px
+    }
+    @media (max-width:800px){ .social-proof{grid-template-columns:1fr} }
+    .quote{
+      background:var(--card); border-left:4px solid var(--cta);
+      padding:12px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.06);
+      font-size:14px;
+    }
+
+    /* FAQ（無JS） */
+    details{
+      background:var(--card); border-radius:10px; padding:12px 14px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    details+details{margin-top:10px}
+    summary{cursor:pointer; font-weight:700; color:#1a1a1a}
+    summary::-webkit-details-marker{display:none}
+
+    /* 手機底部浮動購買條 */
+    .buy-bar{
+      position:fixed; left:0; right:0; bottom:-100%;
+      background:rgba(255,255,255,.98); box-shadow:0 -2px 12px rgba(0,0,0,.15);
+      padding:10px 14px; display:flex; align-items:center; justify-content:space-between;
+      gap:10px; transition:bottom .25s ease; z-index:20;
+    }
+    .buy-bar .price{margin:0}
+    @media (max-width:640px){ .buy-bar.show{bottom:0} }
+
+    footer{
+      background:var(--card); color:var(--muted);
+      text-align:center; padding:16px; margin-top:28px;
+      font-size:14px; box-shadow:0 -2px 6px var(--ring);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <a href="#" class="brand" aria-label="回首頁">
+      <img src="assets/logo.jpg" alt="JieJourneys Logo">
+      <span>JieJourneys</span>
+    </a>
+    <a class="header-btn" href="https://ig.me/m/jiejourneys" target="_blank" rel="noopener">聯絡我們</a>
+  </header>
+
+  <main class="container">
+    <!-- 購買主視覺區：左文案 + 右預覽/表單 -->
+    <section class="buy-box" aria-label="購買區塊">
+      <div>
+        <h1>釜山五日行程</h1>
+        <p>終極懶人攻略｜最佳動線｜圖影導覽｜導航連結｜帶著手機輕鬆玩</p>
+        <div class="badges">
+          <span class="badge">📍 一鍵導航</span>
+          <span class="badge">🧭 最佳動線</span>
+          <span class="badge">🍜 美食評分</span>
+          <span class="badge">🎞️ 圖影導覽</span>
+          <span class="badge">🧾 票券連結</span>
+        </div>
+        <p class="price">NT$199</p>
+        <div class="secure">🔒 安全付款｜成功後立即寄送 PDF</div>
+      </div>
+
+      <div>
+        <div class="preview" aria-label="檔案預覽">
+        <div class="form" style="margin-top:12px">
+          <form action="#" method="post">
+            <label for="email">收件 Email（用來寄送行程檔案）</label>
+            <input id="email" type="email" name="email" placeholder="you@example.com" required>
+            <a href="#" class="btn buy-now" style="width:100%">立即購買</a>
+            <div class="secure">🕒 1–3 分鐘內寄送｜如未收到請檢查垃圾信件匣</div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 特色區：把「行前準備」提前 -->
+    <section class="section">
+      <h2>行程特色</h2>
+      <p class="sub">精準濃縮，打開就能用｜圖片動線＋導航連結，照著走就能輕鬆玩</p>
+      <div class="features">
+        <article class="feature">
+          <img class="thumb" src="assets/checklist.png" alt="行前準備清單">
+          <div class="title"><span class="icon">🧰</span> 行前準備</div>
+          <p>一次處理簽證、住宿、票券、換匯、地圖、交通、規定。</p>
+        </article>
+
+        <article class="feature">
+          <img class="thumb" src="assets/gonglue.png" alt="互動檔案與資訊">
+          <div class="title"><span class="icon">🗺️</span> 互動檔案</div>
+          <p>最佳動線、地圖連結、圖影導覽、美食星級評分、營業時間。</p>
+        </article>
+
+        <article class="feature">
+          <img class="thumb" src="assets/jiaonang.JPG" alt="景點精選照片">
+          <div class="title"><span class="icon">📌</span> 景點精選</div>
+          <p>膠囊列車、甘川洞、松島纜車、海雲台、白淺灘、廣安里。</p>
+        </article>
+
+        <article class="feature">
+          <img class="thumb" src="assets/meishi.JPG" alt="美食清單照片">
+          <div class="title"><span class="icon">🍽️</span> 美食清單</div>
+          <p>豬肉湯飯、蔘雞湯、韓式炸雞、雪濃湯、烤肉、炸醬麵、海鮮。</p>
+        </article>
+
+        <article class="feature">
+          <img class="thumb" src="assets/fengjing.JPG" alt="體驗活動圖像">
+          <div class="title"><span class="icon">✨</span> 特色體驗</div>
+          <p>海景咖啡廳、空中步道、韓服體驗、遊艇、汗蒸幕、海岸列車。</p>
+        </article>
+
+        <article class="feature">
+          <img class="thumb" src="assets/gouwu.JPG" alt="購物地點圖像">
+          <div class="title"><span class="icon">🛍️</span> 必逛購物</div>
+          <p>Olive Young、DAISO、樂天超市，一次逛好逛滿。</p>
+        </article>
+        
+      </div>
+    </section>
+
+    <!-- 社會證明（可先放假文案） -->
+    <section class="section" aria-label="使用者好評">
+      <h2>使用者回饋</h2>
+      <div class="social-proof">
+        <div class="quote">「按著地圖走完全不迷路，餐廳都很好吃！」— IG粉絲</div>
+        <div class="quote">「PDF很清楚，直接複製 day-by-day 用。」— 旅伴 Kelly</div>
+        <div class="quote">「導航＋Reels教學很香，新手也安心。」— 小紅書用戶</div>
+      </div>
+    </section>
+
+    <!-- FAQ 無JS折疊 -->
+    <section class="section" aria-label="常見問題">
+      <h2>常見問題</h2>
+      <details>
+        <summary>這份攻略適合誰？</summary>
+        <p>想少做功課、直接照表走的人；第一次去釜山或只想玩重點的人。</p>
+      </details>
+      <details>
+        <summary>付款後多久收到？</summary>
+        <p>一般 1–3 分鐘寄達你的 Email；若未收到請檢查垃圾信件匣。</p>
+      </details>
+      <details>
+        <summary>檔案格式與觀看方式？</summary>
+        <p>PDF 格式，手機/平板/電腦皆可開啟；內含可點擊的導航與連結。</p>
+      </details>
+      <details>
+        <summary>是否包含門票或交通？</summary>
+        <p>本產品為攻略檔案，不含實體票券；文內提供購買連結與使用說明。</p>
+      </details>
+      <details>
+        <summary>可以退款嗎？</summary>
+        <p>屬於可複製之數位商品，原則上不提供退費；若檔案有問題請來信協助。</p>
+      </details>
+    </section>
+  </main>
+
+  <!-- 手機浮動購買條（無JS：用 CSS 顯示） -->
+  <div class="buy-bar show" role="region" aria-label="快速購買工具列">
+    <div>
+      <strong>釜山五日行程</strong>
+      <div class="secure">🔒 即時寄送 PDF</div>
+    </div>
+    <div class="price">NT$199</div>
+    <a href="#" class="btn buy-now">立即購買</a>
+  </div>  
+  <footer>© JieJourneys</footer>
+  <script>
+    /* --- JieJourneys payment script --- */
+    (function () {
+      console.log("payment script loaded");
+    
+      // 你的 Supabase anon key（跟你 curl 成功用的一樣）
+      const ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY";
+    
+      async function startPay() {
+        const emailInput = document.querySelector("input[type='email']");
+        const email = (emailInput?.value || "test@example.com").trim();
+        const amount = 199;
+    
+        console.log("buy-now clicked", { email, amount });
+    
+        try {
+          const res = await fetch(
+            "https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/pay",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                apikey: ANON_KEY,
+                Authorization: "Bearer " + ANON_KEY,
+              },
+              body: JSON.stringify({ email, amount }),
+            }
+          );
+    
+          const data = await res.json();
+          console.log("api response:", data);
+    
+          // 1) 正式（藍新）—— 自動組 form 並 POST 送出
+          if (data?.gateway && data?.fields) {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = data.gateway;
+    
+            Object.entries(data.fields).forEach(([k, v]) => {
+              const input = document.createElement("input");
+              input.type = "hidden";
+              input.name = k;
+              input.value = v;
+              form.appendChild(input);
+            });
+    
+            document.body.appendChild(form);
+            form.submit();
+            return;
+          }
+    
+          // 2) 測試（mock）—— 直接導到假網址
+          if (data?.url) {
+            window.location.href = data.url;
+            return;
+          }
+    
+          alert("建立付款連結失敗，請稍後再試");
+        } catch (err) {
+          console.error("建立付款連結失敗:", err);
+          alert("建立付款連結失敗，請稍後再試");
+        }
+      }
+    
+      // 事件委派：保證子元素點擊也會觸發
+      document.addEventListener(
+        "click",
+        (e) => {
+          const btn = e.target.closest(".buy-now");
+          if (!btn) return;
+          e.preventDefault();
+          startPay();
+        },
+        true
+      );
+    
+      // 保險：把 .buy-now 的 button 強制改成 type="button"，避免表單原生 submit 阻斷流程
+      document.querySelectorAll(".buy-now").forEach((btn) => {
+        if (btn.tagName === "BUTTON" && btn.getAttribute("type") !== "button") {
+          btn.setAttribute("type", "button");
+        }
+        // 如果是 <a>，避免沒有 href 造成導航異常
+        if (btn.tagName === "A" && !btn.getAttribute("href")) {
+          btn.setAttribute("href", "#");
+        }
+      });
+    })();
+    </script>        
+    
+</body>
+</html>
