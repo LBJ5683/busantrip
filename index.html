@@ -311,17 +311,11 @@ input[type="email"].invalid{
       // 僅允許 @gmail.com
       const isGmail = (v) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(v?.trim() || "");
     
-      // 切換兩顆「立即購買」的可用狀態
-      function toggleBuyEnabled(enabled) {
-        buyButtons.forEach((btn) => btn.setAttribute("aria-disabled", String(!enabled)));
-      }
-    
       // 依輸入自動驗證與切換
       function validateEmail() {
         const value = emailInput?.value || "";
         const ok = isGmail(value);
         if (emailInput) emailInput.classList.toggle("invalid", !ok && value !== "");
-        toggleBuyEnabled(ok);
         return ok;
       }
     
@@ -406,16 +400,7 @@ input[type="email"].invalid{
         },
         true
       );
-    
-      // 保險：把 .buy-now 設為不會觸發原生 submit / 導航
-      buyButtons.forEach((btn) => {
-        if (btn.tagName === "BUTTON" && btn.getAttribute("type") !== "button") {
-          btn.setAttribute("type", "button");
-        }
-        if (btn.tagName === "A" && !btn.getAttribute("href")) {
-          btn.setAttribute("href", "#");
-        }
-      });
+
     })();
     </script>    
     
