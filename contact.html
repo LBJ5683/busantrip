@@ -85,6 +85,7 @@
   </div>
 
   <script>
+    const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY";
   document.querySelector('#contactForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     const f = new FormData(e.target);
@@ -92,7 +93,10 @@
     try{
       const res = await fetch('https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/contact-submit',{
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${ANON_KEY}`
+  },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
