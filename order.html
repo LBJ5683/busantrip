@@ -111,39 +111,76 @@
   </div>
 
   <script>
-    const form = document.getElementById('orderForm');
+    const form  = document.getElementById('orderForm');
     const payBtn = document.getElementById('payBtn');
-    const msg = document.getElementById('msg');
-
+    const msg   = document.getElementById('msg');
+  
+    // 你的 Supabase Edge Function 端點（注意有 /functions/v1/）
+    const FUNCTION_URL = "https://fqhjwakhdizopjnindni.functions.supabase.co/functions/v1/pay";
+    const ANON_KEY     = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY"; // Supabase 專案的 anon key
+  
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.textContent = '';
-
+      msg.className = 'note';
+  
       const email = (document.getElementById('email').value || '').trim();
-      const name  = (document.getElementById('name').value || '').trim();
-      const note  = (document.getElementById('note').value || '').trim();
+      const name  = (document.getElementById('name').value  || '').trim();
       const agree = document.getElementById('agree').checked;
-
+  
       if (!email) { msg.textContent = '請輸入 Email。'; msg.className = 'note err'; return; }
       if (!/.+@.+\..+/.test(email)) { msg.textContent = 'Email 格式不正確。'; msg.className = 'note err'; return; }
       if (!agree) { msg.textContent = '請勾選同意條款。'; msg.className = 'note err'; return; }
-
+  
+      // UI loading
       payBtn.disabled = true;
-      const old = payBtn.innerHTML;
+      const oldHTML = payBtn.innerHTML;
       payBtn.innerHTML = '<span class="spin"></span>建立付款連結…';
-
+  
       try {
-        msg.textContent = '目前金流審核中，付款功能即將開放。';
-        msg.className = 'note ok';
+        const res = await fetch(FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${ANON_KEY}`, // 很重要：Edge Function 要用 Bearer ANON_KEY
+          },
+          body: JSON.stringify({
+            email,
+            name,
+            // 你可以把訂單資訊帶給後端（視你的 function 需求）
+            productId: 'busan-5d',
+            amount: 19900, // 單位分（若你的後端需要）
+            returnUrl: 'https://busantrip.vercel.app/paid.html'
+            // notifyUrl 不用從前端傳，已在藍新後台指定為 Supabase 的 newebpay-notify
+          }),
+        });
+  
+        if (!res.ok) {
+          const t = await res.text();
+          console.error('pay error:', res.status, t);
+          throw new Error('Edge Function 回應非 2xx');
+        }
+  
+        const data = await res.json();
+        const payUrl = data.url || data.pay_url || data.PayUrl; // 兼容不同欄位命名
+  
+        if (payUrl) {
+          window.location.href = payUrl; // 這一步才會真正跳去 Newebpay
+        } else {
+          console.error('no pay url in response:', data);
+          msg.textContent = '建立付款連結失敗（缺少網址）。';
+          msg.className = 'note err';
+        }
       } catch (err) {
         console.error(err);
-        msg.textContent = '建立付款連結失敗，請稍後再試。';
+        msg.textContent = '伺服器錯誤，請稍後再試。';
         msg.className = 'note err';
       } finally {
         payBtn.disabled = false;
-        payBtn.innerHTML = old;
+        payBtn.innerHTML = oldHTML;
       }
     });
   </script>
+  
 </body>
 </html>
