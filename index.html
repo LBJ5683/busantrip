@@ -301,113 +301,19 @@ input[type="email"].invalid{
   </footer>
   
   <script>
-    /* --- JieJourneys payment script --- */
     (function () {
       console.log("payment script loaded");
-    
-      // Supabase anon key
-      const ANON_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY";
-    
-      const emailInput = document.querySelector("#email");
-      const buyButtons = Array.from(document.querySelectorAll(".buy-now"));
-      const amount = 199;
-    
-      // 僅允許 @gmail.com
-      const isGmail = (v) => /^[a-zA-Z0-9._%+-]+@gmail\.com$/i.test(v?.trim() || "");
-    
-      // 依輸入自動驗證與切換
-      function validateEmail() {
-        const value = emailInput?.value || "";
-        const ok = isGmail(value);
-        if (emailInput) emailInput.classList.toggle("invalid", !ok && value !== "");
-        return ok;
-      }
-    
-      // 初始與輸入時驗證
-      validateEmail();
-      emailInput?.addEventListener("input", validateEmail);
-    
-      async function startPay() {
-        const email = (emailInput?.value || "").trim();
-    
-        // 再保險一次（使用者可能手動繞過）
-        if (!isGmail(email)) {
-          alert("請輸入有效的 Gmail（例：yourname@gmail.com）");
-          emailInput?.focus();
-          return;
-        }
-    
-        try {
-          const res = await fetch(
-            "https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/pay",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + ANON_KEY,
-              },
-              body: JSON.stringify({ email, amount }),
-            }
-          );
-    
-          const data = await res.json();
-          console.log("api response:", data);
-    
-          // 1) 正式（藍新）—— 後端回 gateway + fields，就自動組 form 送出
-          if (data?.gateway && data?.fields) {
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = data.gateway;
-    
-            Object.entries(data.fields).forEach(([k, v]) => {
-              const input = document.createElement("input");
-              input.type = "hidden";
-              input.name = k;
-              input.value = v;
-              form.appendChild(input);
-            });
-    
-            document.body.appendChild(form);
-            form.submit();
-            return;
-          }
-    
-          // 2) 測試（mock）—— 後端回 url 就直接導向
-          if (data?.url) {
-            window.location.href = data.url;
-            return;
-          }
-    
-          alert("建立付款連結失敗，請稍後再試");
-        } catch (err) {
-          console.error("建立付款連結失敗:", err);
-          alert("建立付款連結失敗，請稍後再試");
-        }
-      }
-    
-      // 捕捉兩顆「立即購買」的點擊
-      document.addEventListener(
-        "click",
-        (e) => {
-          const btn = e.target.closest(".buy-now");
-          if (!btn) return;
-    
-          // 若當前是禁用狀態，直接攔住
-          if (btn.getAttribute("aria-disabled") === "true") {
-            e.preventDefault();
-            validateEmail(); // 讓使用者看到欄位變紅
-            return;
-          }
-    
-          e.preventDefault();
-          startPay();
-        },
-        true
-      );
-
+  
+      // 捕捉所有立即購買按鈕 → 導向 order.html
+      document.addEventListener("click", (e) => {
+        const btn = e.target.closest(".buy-now");
+        if (!btn) return;
+  
+        e.preventDefault();
+        window.location.href = "order.html";
+      });
     })();
-    </script>    
+  </script>  
     
 </body>
 </html>
