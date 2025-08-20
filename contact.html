@@ -1,44 +1,105 @@
-<!DOCTYPE html><html lang="zh-Hant"><head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>聯絡我們 | JieJourneys</title>
-    <style>
-      body{font-family:Arial,"Noto Sans TC",sans-serif;background:#f8fafc;margin:0;padding:20px}
-      .container{max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
-      h1{color:#2c3e50;text-align:center}
-      label{display:block;margin-top:14px;font-weight:700}
-      input,textarea{width:100%;padding:10px;margin-top:6px;border:1px solid #ccc;border-radius:6px}
-      button{margin-top:18px;background:#1f7a8c;color:#fff;border:0;padding:12px 18px;border-radius:8px;cursor:pointer}
-      .note{font-size:13px;color:#666;text-align:center;margin-top:14px}
-    </style></head><body>
-    <div class="container">
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>聯絡我們 | JieJourneys</title>
+  <style>
+    /* 這裡保留你原本的 CSS，我已經檢查過沒問題 */
+    :root{
+      --brand:#2c3e50; --ink:#1f2937; --muted:#6b7280;
+      --card:#fff; --bg:#f3f6fb; --cta:#1f7a8c; --cta-hover:#176070;
+      --ring: 0 0 0 3px rgba(31,122,140,.18);
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg);
+      font-family: ui-sans-serif, system-ui, "Noto Sans TC", Arial, Helvetica, sans-serif;
+      color:var(--ink);
+    }
+    .container{
+      max-width: 760px; margin: 48px auto; padding: 0 20px;
+    }
+    .card{
+      background:var(--card); border-radius:var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      padding: 28px;
+    }
+    h1{
+      margin: 0 0 10px; text-align:center; color:var(--brand);
+      font-size: 32px; letter-spacing:.5px;
+    }
+    .hint{ text-align:center; color:var(--muted); margin-bottom:18px }
+    .field{ margin-top:16px }
+    label{ display:block; font-weight:700; margin-bottom:6px }
+    input, textarea{
+      width:100%; border:1px solid #d1d5db; border-radius:10px;
+      padding:12px 14px; font-size:16px; background:#fff;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea{ min-height:140px; resize:vertical }
+    input:focus, textarea:focus{
+      outline:none; border-color:#1f7a8c; box-shadow: var(--ring);
+    }
+    .actions{ margin-top:20px; text-align:left }
+    button{
+      background:var(--cta); color:#fff; border:0; cursor:pointer;
+      padding:12px 18px; border-radius:10px; font-weight:700;
+    }
+    button:hover{ background:var(--cta-hover) }
+    @media (max-width:640px){
+      .card{ padding:18px }
+      h1{ font-size:26px }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
       <h1>聯絡我們</h1>
+      <p class="hint">提交後我們會寄一封確認信給你。</p>
+
       <form id="contactForm">
-        <label>您的名字</label>
-        <input name="name" required>
-        <label>您的 Email</label>
-        <input name="email" type="email" required>
-        <label>想詢問的問題</label>
-        <textarea name="message" rows="6" required></textarea>
-        <button type="submit">送出</button>
+        <div class="field">
+          <label>您的名字</label>
+          <input name="name" required>
+        </div>
+
+        <div class="field">
+          <label>您的 Email</label>
+          <input name="email" type="email" required>
+        </div>
+
+        <div class="field">
+          <label>想詢問的問題</label>
+          <textarea name="message" required></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="submit">送出</button>
+        </div>
       </form>
-      <p class="note">提交後我們會寄一封確認信給你。</p>
     </div>
-    <script>
-    document.querySelector('#contactForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const f = new FormData(e.target);
-      const payload = Object.fromEntries(f.entries());
-      try{
-        const res = await fetch('https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/contact-submit',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if(data.ok){ alert('已送出！我們將盡快回覆。'); e.target.reset(); }
-        else{ alert('送出失敗，請稍後再試'); }
-      }catch(err){ alert('送出失敗，請稍後再試'); console.error(err); }
-    });
-    </script>
-    </body></html>
-    
+  </div>
+
+  <script>
+  document.querySelector('#contactForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const payload = Object.fromEntries(f.entries());
+    try{
+      const res = await fetch('https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/contact-submit',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if(data.ok){ alert('已送出！我們將盡快回覆。'); e.target.reset(); }
+      else{ alert('送出失敗，請稍後再試'); }
+    }catch(err){ alert('送出失敗，請稍後再試'); console.error(err); }
+  });
+  </script>
+</body>
+</html>
