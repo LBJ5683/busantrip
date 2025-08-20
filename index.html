@@ -163,6 +163,25 @@ input[type="email"].invalid{
   background:#fff5f5;
 }
 
+.buy-now-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #ff7e5f, #feb47b);
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 50px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.buy-now-btn:hover {
+  background: linear-gradient(135deg, #feb47b, #ff7e5f);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
   </style>
 </head>
 <body>
@@ -196,7 +215,7 @@ input[type="email"].invalid{
         <div class="preview" aria-label="檔案預覽">
         <div class="form" style="margin-top:12px">
           <div class="form" style="margin-top:12px">
-            <a href="order.html" class="btn buy-now" style="width:100%">立即購買</a>
+            <a href="order.html" class="buy-now-btn">立即購買</a>
             <div class="secure">⌛ 3分鐘內寄送 | 如未收到請檢查垃圾信件匣</div>
           </div>
           
