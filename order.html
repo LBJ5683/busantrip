@@ -5,34 +5,67 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>訂單確認 | JieJourneys</title>
   <style>
-    :root{
-      --bg:#f6f8fb; --card:#fff; --ink:#111827; --muted:#6b7280;
-      --brand:#0ea5e9; --brand-2:#0284c7; --ok:#059669; --warn:#ef4444;
-      --radius:16px; --ring:0 0 0 3px rgba(14,165,233,.18);
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --ink: #111827;
+      --muted: #6b7280;
+      --brand: #2563eb;
+      --brand-hover: #1d4ed8;
+      --ok: #059669;
+      --warn: #dc2626;
+      --radius: 18px;
+      --shadow: 0 8px 24px rgba(0,0,0,0.06);
+      --ring: 0 0 0 4px rgba(37,99,235,.15);
     }
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);font-family:system-ui, -apple-system, "Noto Sans TC", Arial}
-    .wrap{max-width:720px;margin:32px auto;padding:0 18px}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:0 12px 32px rgba(0,0,0,.08);padding:22px}
-    h1{margin:0 0 4px;font-size:28px;color:var(--ink)} .sub{color:var(--muted);margin-bottom:16px}
-    .summary{display:grid;grid-template-columns:1fr auto;gap:10px;border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin:12px 0}
-    .summary .name{font-weight:700} .price{font-weight:800}
-    .field{margin-top:14px}
-    label{display:block;font-weight:700;margin-bottom:6px}
-    input,textarea{width:100%;padding:12px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:16px;background:#fff;transition:border .15s, box-shadow .15s}
-    textarea{min-height:110px;resize:vertical}
-    input:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:var(--ring)}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .agree{display:flex;gap:10px;align-items:flex-start;color:#374151;margin-top:8px}
-    .help{color:var(--muted);font-size:13px}
-    .actions{margin-top:18px;display:flex;gap:10px;align-items:center}
-    .btn{background:var(--brand);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:800;cursor:pointer}
-    .btn:hover{background:var(--brand-2)} .btn:disabled{background:#9ca3af;cursor:not-allowed}
-    .ghost{background:#fff;color:#374151;border:1px solid #d1d5db}
-    .spin{width:16px;height:16px;border:2px solid #fff;border-left-color:transparent;border-radius:50%;display:inline-block;vertical-align:-3px;animation:spin 1s linear infinite;margin-right:8px}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .note{margin-top:12px;color:#6b7280;font-size:14px}
-    .ok{color:var(--ok)} .err{color:var(--warn)}
-    @media(max-width:640px){.row{grid-template-columns:1fr}}
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); font-family: "Noto Sans TC", system-ui, -apple-system, Arial; color: var(--ink); line-height: 1.5; }
+    .wrap { max-width: 720px; margin: 40px auto; padding: 0 20px; }
+    .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 28px 32px; animation: fadeIn .4s ease; }
+    h1 { margin: 0 0 8px; font-size: 30px; font-weight: 800; color: var(--ink); }
+    .sub { color: var(--muted); margin-bottom: 20px; font-size: 15px; }
+
+    .summary { display: flex; justify-content: space-between; align-items: center; background: #f3f4f6; border-radius: 12px; padding: 16px 18px; margin: 16px 0 20px; }
+    .summary .name { font-weight: 700; font-size: 17px; }
+    .summary .help { color: var(--muted); font-size: 14px; margin-top: 2px; }
+    .price { font-weight: 800; font-size: 18px; color: var(--brand); }
+
+    .field { margin-top: 18px; }
+    label { display:block; font-weight: 600; margin-bottom: 6px; }
+    input[type="text"], input[type="email"], textarea {
+      width: 100%; padding: 12px 14px;
+      border: 1px solid #d1d5db; border-radius: 12px; font-size: 16px; background: #fff;
+      transition: border .15s, box-shadow .15s;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    input[type="text"]:focus, input[type="email"]:focus, textarea:focus { outline: none; border-color: var(--brand); box-shadow: var(--ring); }
+
+    /* 兩欄平均 */
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .policy { background:#f3f4f6; border-radius:12px; padding:16px; margin-top:18px; }
+    .policy h3 { margin:0 0 6px; font-size:15px; font-weight:700; }
+    .policy .text { color:#6b7280; font-size:14px; line-height:1.6; }
+    input[type="checkbox"]{ width:auto; height:18px; margin:0; accent-color: var(--brand); }
+    .agree{ display:grid; grid-template-columns: 20px 1fr; align-items:center; gap:10px; margin-top:5px; font-size:16px; color:#374151; }
+    .agree label{ margin:0; }
+    .agree a{ color:var(--brand); text-decoration:underline; }
+
+    .actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .btn { background: var(--brand); color: #fff; border: 0; border-radius: 14px; padding: 13px 20px; font-weight: 700; font-size: 16px; cursor: pointer; transition: background .2s, transform .1s; }
+    .btn:hover { background: var(--brand-hover); transform: translateY(-1px); }
+    .btn:disabled { background: #9ca3af; cursor: not-allowed; }
+    .ghost { background: #fff; color: #374151; border: 1px solid #d1d5db; }
+    .ghost:hover { background: #f9fafb; }
+
+    .note { margin-top: 10px; font-size: 14px; }
+    .ok { color: var(--ok); }
+    .err { color: var(--warn); }
+
+    .spin { width:16px;height:16px; border:2px solid #fff;border-left-color:transparent; border-radius:50%;display:inline-block; vertical-align:-3px;animation:spin 1s linear infinite; margin-right:8px }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px);} to {opacity:1; transform:none;} }
+    @media(max-width:640px){ .row{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
@@ -44,7 +77,6 @@
       <div class="summary">
         <div>
           <div class="name">釜山 5 日行程攻略 PDF</div>
-          <div class="help">含地圖/路線/預算/一鍵複製行程</div>
         </div>
         <div class="price">NT$ 199</div>
       </div>
@@ -52,24 +84,21 @@
       <form id="orderForm" novalidate>
         <div class="row">
           <div class="field">
-            <label>Email（必填）</label>
+            <label>Email</label>
             <input id="email" type="email" placeholder="you@gmail.com" required />
             <div class="help">用來收取 PDF（請填寫可收信的 Email）</div>
           </div>
           <div class="field">
-            <label>姓名（選填）</label>
-            <input id="name" placeholder="王小明" />
+            <label>姓名</label>
+            <input id="name" type="text" placeholder="王小明" />
           </div>
         </div>
 
-        <div class="field">
-          <label>備註（選填）</label>
-          <textarea id="note" placeholder="想補充的需求或問題（選填）"></textarea>
-        </div>
-
-        <div class="agree">
-          <input id="agree" type="checkbox" />
-          <label for="agree">我已閱讀並同意 <a href="#" target="_blank">購買條款</a> 與 <a href="#" target="_blank">隱私權</a>。</label>
+        <div class="policy">
+          <div class="agree">
+            <input id="agree" type="checkbox" />
+            <label for="agree">我同意本檔僅供個人使用，含浮水印與隱碼，嚴禁轉傳或販售。</label>
+          </div>
         </div>
 
         <div class="actions">
@@ -95,29 +124,15 @@
       const note  = (document.getElementById('note').value || '').trim();
       const agree = document.getElementById('agree').checked;
 
-      // 基本驗證
       if (!email) { msg.textContent = '請輸入 Email。'; msg.className = 'note err'; return; }
       if (!/.+@.+\..+/.test(email)) { msg.textContent = 'Email 格式不正確。'; msg.className = 'note err'; return; }
       if (!agree) { msg.textContent = '請勾選同意條款。'; msg.className = 'note err'; return; }
 
-      // Loading 狀態
       payBtn.disabled = true;
       const old = payBtn.innerHTML;
       payBtn.innerHTML = '<span class="spin"></span>建立付款連結…';
 
       try {
-        // 🧪 目前 NewebPay 尚未通過：先模擬流程（不跳金流）
-        // 未來開通後，改成呼叫你的 Edge Function `pay` 取得付款 URL：
-        // const res = await fetch('https://<your-project>.supabase.co/functions/v1/pay', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer <ANON_KEY>' },
-        //   body: JSON.stringify({ email, name, note, amount: 199 })
-        // });
-        // const data = await res.json();
-        // if (!res.ok || !data.url) throw new Error(data.error || '建立付款連結失敗');
-        // window.location.href = data.url;
-
-        // 先給使用者回饋（模擬）：
         msg.textContent = '目前金流審核中，付款功能即將開放。';
         msg.className = 'note ok';
       } catch (err) {
