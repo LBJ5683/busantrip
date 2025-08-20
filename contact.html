@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>聯絡我們 | JieJourneys</title>
   <style>
-    /* 這裡保留你原本的 CSS，我已經檢查過沒問題 */
     :root{
       --brand:#2c3e50; --ink:#1f2937; --muted:#6b7280;
       --card:#fff; --bg:#f3f6fb; --cta:#1f7a8c; --cta-hover:#176070;
@@ -91,15 +90,15 @@
       const payload = Object.fromEntries(f.entries());
   
       const btn = document.querySelector('#submitBtn');
-      btn.disabled = true;                 // 鎖定按鈕
-      btn.textContent = '送出中…';         // 顯示 Loading 狀態
+      btn.disabled = true;
+      btn.textContent = '送出中…';
   
       try {
         const res = await fetch('https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/contact-submit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + '你的JWT'
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY`
           },
           body: JSON.stringify(payload)
         });
@@ -117,11 +116,10 @@
         alert('❌ 系統錯誤，請稍後再試。');
         console.error(err);
       } finally {
-        btn.disabled = false;              // 恢復按鈕
-        btn.textContent = '送出';          // 顯示回「送出」
+        btn.disabled = false;
+        btn.textContent = '送出';
       }
     });
   </script>
-  
 </body>
 </html>
