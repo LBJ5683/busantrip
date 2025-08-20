@@ -85,24 +85,41 @@
   </div>
 
   <script>
-    document.querySelector('#contactForm').addEventListener('submit', async (e)=>{
+    document.querySelector('#contactForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const f = new FormData(e.target);
       const payload = Object.fromEntries(f.entries());
   
-      try{
+      const btn = document.querySelector('#submitBtn');
+      btn.disabled = true;                 // 鎖定按鈕
+      btn.textContent = '送出中…';         // 顯示 Loading 狀態
+  
+      try {
         const res = await fetch('https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/contact-submit', {
-  method:'POST',
-  headers:{ 
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY'
-  },
-  body: JSON.stringify(payload)
-});
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + '你的JWT'
+          },
+          body: JSON.stringify(payload)
+        });
+  
         const data = await res.json();
-        if (data.ok) { alert('已送出！我們將盡快回覆。'); e.target.reset(); }
-        else { alert('送出失敗，請稍後再試'); console.log('debug:', data); }
-      }catch(err){ alert('送出失敗，請稍後再試'); console.error(err); }
+  
+        if (data.success) {
+          alert('✅ 已送出！我們將盡快回覆。');
+          e.target.reset();
+        } else {
+          alert('⚠️ 送出失敗，請稍後再試。');
+          console.log('debug:', data);
+        }
+      } catch (err) {
+        alert('❌ 系統錯誤，請稍後再試。');
+        console.error(err);
+      } finally {
+        btn.disabled = false;              // 恢復按鈕
+        btn.textContent = '送出';          // 顯示回「送出」
+      }
     });
   </script>
   
