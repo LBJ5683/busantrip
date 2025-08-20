@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訂單確認</title>
+  <style>
+    body { font-family: sans-serif; background: #f9fafb; margin: 0; padding: 20px; }
+    .container { max-width: 480px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .item { margin: 12px 0; font-size: 16px; }
+    .label { font-weight: bold; color: #333; }
+    .btn { display: block; width: 100%; padding: 12px; margin-top: 20px; text-align: center; background: #0f766e; color: white; font-size: 18px; border: none; border-radius: 8px; cursor: pointer; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    input { width: 100%; padding: 10px; margin-top: 6px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>訂單確認</h2>
+
+    <div class="item"><span class="label">商品：</span>釜山 5 日行程攻略 PDF</div>
+    <div class="item"><span class="label">金額：</span>NT$ 199</div>
+
+    <div class="item">
+      <span class="label">Email：</span>
+      <input type="email" id="email" placeholder="請輸入 Gmail" required>
+    </div>
+
+    <button id="payBtn" class="btn">確認並前往付款</button>
+  </div>
+
+  <script>
+    document.getElementById("payBtn").addEventListener("click", () => {
+      const email = document.getElementById("email").value.trim();
+      if (!email) {
+        alert("請輸入 Gmail");
+        return;
+      }
+      alert("之後這裡會串接 NewebPay API，產生付款連結！");
+    });
+  </script>
+</body>
+</html>
