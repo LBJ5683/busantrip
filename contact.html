@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="zh-Hant"><head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>聯絡我們 | JieJourneys</title>
+    <style>
+      body{font-family:Arial,"Noto Sans TC",sans-serif;background:#f8fafc;margin:0;padding:20px}
+      .container{max-width:600px;margin:auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+      h1{color:#2c3e50;text-align:center}
+      label{display:block;margin-top:14px;font-weight:700}
+      input,textarea{width:100%;padding:10px;margin-top:6px;border:1px solid #ccc;border-radius:6px}
+      button{margin-top:18px;background:#1f7a8c;color:#fff;border:0;padding:12px 18px;border-radius:8px;cursor:pointer}
+      .note{font-size:13px;color:#666;text-align:center;margin-top:14px}
+    </style></head><body>
+    <div class="container">
+      <h1>聯絡我們</h1>
+      <form id="contactForm">
+        <label>您的名字</label>
+        <input name="name" required>
+        <label>您的 Email</label>
+        <input name="email" type="email" required>
+        <label>想詢問的問題</label>
+        <textarea name="message" rows="6" required></textarea>
+        <button type="submit">送出</button>
+      </form>
+      <p class="note">提交後我們會寄一封確認信給你。</p>
+    </div>
+    <script>
+    document.querySelector('#contactForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const f = new FormData(e.target);
+      const payload = Object.fromEntries(f.entries());
+      try{
+        const res = await fetch('https://fqhjwakhdizopjnnidni.supabase.co/functions/v1/contact-submit',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if(data.ok){ alert('已送出！我們將盡快回覆。'); e.target.reset(); }
+        else{ alert('送出失敗，請稍後再試'); }
+      }catch(err){ alert('送出失敗，請稍後再試'); console.error(err); }
+    });
+    </script>
+    </body></html>
+    
