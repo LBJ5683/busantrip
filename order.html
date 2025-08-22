@@ -109,59 +109,71 @@
   </div>
 
   <script>
-    const form  = document.getElementById('orderForm');
+    const form   = document.getElementById('orderForm');
     const payBtn = document.getElementById('payBtn');
-    const msg   = document.getElementById('msg');
-
+    const msg    = document.getElementById('msg');
+  
+    // 你的 Edge Function URL（保持這個）
     const FUNCTION_URL = "https://fqhjwakhdizopjnnidni.functions.supabase.co/functions/v1/pay";
-    const ANON_KEY     = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY"; // 換成你的 anon key
-
+  
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.textContent = ''; msg.className = 'note';
-
+  
       const email = (document.getElementById('email').value || '').trim();
       const name  = (document.getElementById('name').value  || '').trim();
-
-      if (!email){ msg.textContent='請輸入 Email。'; msg.className='note err'; return; }
       if (!/.+@.+\..+/.test(email)){ msg.textContent='Email 格式不正確。'; msg.className='note err'; return; }
-
+  
       payBtn.disabled = true;
-      const old = payBtn.innerHTML;
-      payBtn.innerHTML = '<span class="spin"></span>建立付款連結…';
-
+      const prev = payBtn.innerHTML;
+      payBtn.innerHTML = '<span class="spin"></span>建立付款…';
+  
       try {
         const res = await fetch(FUNCTION_URL, {
           method:'POST',
-          headers:{
-            'Content-Type':'application/json',
-          },
+          headers:{ 'Content-Type':'application/json' }, // 不要帶 Authorization
           body: JSON.stringify({
             email, name,
-            productId:'busan-5d',
-            amount:19900,
-            returnUrl:'https://busantrip.vercel.app/paid.html'
+            productId: 'busan-5d',
+            amount: 199,                        // ← 金額用 199 元
+            returnUrl: 'https://busantrip.vercel.app/paid.html'
           })
         });
-
-        if (!res.ok) throw new Error('Edge Function 回應非 2xx');
+  
+        if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
-        const payUrl = data.url || data.pay_url || data.PayUrl;
-        if (payUrl){
-          window.location.href = payUrl;
-        }else{
-          msg.textContent='建立付款連結失敗（缺少網址）。';
-          msg.className='note err';
+  
+        // ✅ 標準路徑：收到欄位就直接送到 Newebpay
+        if (data.fields && data.gateway) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = data.gateway;
+          for (const [k, v] of Object.entries(data.fields)) {
+            const input = document.createElement('input');
+            input.type = 'hidden'; input.name = k; input.value = v;
+            form.appendChild(input);
+          }
+          document.body.appendChild(form);
+          form.submit();
+          return;
         }
-      } catch (err){
+  
+        // 備援：如果後端只回 URL，也能跳轉
+        const payUrl = data.url || data.pay_url || data.PayUrl;
+        if (payUrl) { window.location.href = payUrl; return; }
+  
+        msg.textContent = '伺服器未回傳可用的支付資料。';
+        msg.className = 'note err';
+      } catch (err) {
         console.error(err);
-        msg.textContent='伺服器錯誤，請稍後再試。';
-        msg.className='note err';
+        msg.textContent = '建立付款失敗，請稍後再試。';
+        msg.className = 'note err';
       } finally {
         payBtn.disabled = false;
-        payBtn.innerHTML = old;
+        payBtn.innerHTML = prev;
       }
     });
   </script>
+  
 </body>
 </html>
