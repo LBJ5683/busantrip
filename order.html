@@ -130,6 +130,7 @@
       try {
         const res = await fetch(FUNCTION_URL, {
   method: 'POST',
+  credentials: 'omit',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY'
@@ -137,7 +138,6 @@
   body: JSON.stringify({
     email, name,
     productId: 'busan-5d',
-    amount: 199,
     returnUrl: 'https://busantrip.vercel.app/paid.html'
   })
 });
