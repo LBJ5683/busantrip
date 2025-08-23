@@ -123,10 +123,6 @@
       const name  = (document.getElementById('name').value  || '').trim();
       if (!/.+@.+\..+/.test(email)){ msg.textContent='Email 格式不正確。'; msg.className='note err'; return; }
   
-      // 提前開一個空白視窗，避免之後因 await 而被瀏覽器擋 popup
-      let popup = window.open('', '_blank');
-      if (popup) popup.document.write('<p style="font:14px/1.6 system-ui">前往金流頁面中…</p>');
-  
       payBtn.disabled = true;
       const prev = payBtn.innerHTML;
       payBtn.innerHTML = '<span class="spin"></span>建立付款…';
@@ -134,7 +130,7 @@
       try {
         const res = await fetch(FUNCTION_URL, {
           method:'POST',
-          headers:{ 'Content-Type':'application/json' }, // 不要帶 Authorization
+          headers:{ 'Content-Type':'application/json' },
           body: JSON.stringify({
             email, name,
             productId: 'busan-5d',
@@ -144,59 +140,40 @@
         });
   
         if (!res.ok) throw new Error(await res.text());
-  
         const ct = (res.headers.get('content-type') || '').toLowerCase();
   
-        // ❶ 後端回「HTML mpg-form」：把整段 HTML 寫進 popup（會自動送出到藍新）
+        // ❶ 後端回 HTML（mpg-form）→ 直接在同頁寫入，會自動送到藍新
         if (ct.includes('text/html')) {
           const html = await res.text();
-          if (popup) {
-            popup.document.open();
-            popup.document.write(html);
-            popup.document.close();
-          } else {
-            // 後備：若 popup 被擋，用本頁寫入
-            document.open();
-            document.write(html);
-            document.close();
-          }
+          document.open();
+          document.write(html);
+          document.close();
           return;
         }
   
-        // ❷ 後端回「JSON { gateway, fields }」
+        // ❷ 後端回 JSON { gateway, fields } → 同頁建立隱藏表單並 submit
         if (ct.includes('application/json')) {
           const data = await res.json();
-  
           if (data.fields && data.gateway) {
-            const f = (popup && !popup.closed) ? popup.document.createElement('form')
-                                               : document.createElement('form');
+            const f = document.createElement('form');
             f.method = 'POST';
             f.action = data.gateway;
             for (const [k, v] of Object.entries(data.fields)) {
-              const input = (popup && !popup.closed) ? popup.document.createElement('input')
-                                                     : document.createElement('input');
-              input.type = 'hidden'; input.name = k; input.value = v;
-              f.appendChild(input);
+              const i = document.createElement('input');
+              i.type = 'hidden'; i.name = k; i.value = v;
+              f.appendChild(i);
             }
-            if (popup && !popup.closed) {
-              popup.document.body.appendChild(f);
-              f.submit();
-            } else {
-              document.body.appendChild(f);
-              f.submit();
-            }
+            document.body.appendChild(f);
+            f.submit();
             return;
           }
-  
-          // 備援：若只回 URL
           const payUrl = data.url || data.pay_url || data.PayUrl;
-          if (payUrl) { (popup && !popup.closed ? popup : window).location.href = payUrl; return; }
+          if (payUrl) { window.location.href = payUrl; return; }
         }
   
         throw new Error('伺服器未回傳可用的支付資料');
       } catch (err) {
         console.error(err);
-        if (popup && !popup.closed) popup.close();
         msg.textContent = '建立付款失敗，請稍後再試。';
         msg.className = 'note err';
       } finally {
@@ -204,7 +181,7 @@
         payBtn.innerHTML = prev;
       }
     });
-  </script>
+  </script>  
   
   
 </body>
