@@ -113,7 +113,6 @@
     const payBtn = document.getElementById('payBtn');
     const msg    = document.getElementById('msg');
   
-    // 你的 Edge Function URL（保持這個）
     const FUNCTION_URL = "https://fqhjwakhdizopjnnidni.functions.supabase.co/functions/v1/pay";
   
     form.addEventListener('submit', async (e) => {
@@ -123,6 +122,10 @@
       const email = (document.getElementById('email').value || '').trim();
       const name  = (document.getElementById('name').value  || '').trim();
       if (!/.+@.+\..+/.test(email)){ msg.textContent='Email 格式不正確。'; msg.className='note err'; return; }
+  
+      // 提前開一個空白視窗，避免之後因 await 而被瀏覽器擋 popup
+      let popup = window.open('', '_blank');
+      if (popup) popup.document.write('<p style="font:14px/1.6 system-ui">前往金流頁面中…</p>');
   
       payBtn.disabled = true;
       const prev = payBtn.innerHTML;
@@ -135,37 +138,65 @@
           body: JSON.stringify({
             email, name,
             productId: 'busan-5d',
-            amount: 199,                        // ← 金額用 199 元
+            amount: 199,
             returnUrl: 'https://busantrip.vercel.app/paid.html'
           })
         });
   
         if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
   
-        // ✅ 標準路徑：收到欄位就直接送到 Newebpay
-        if (data.fields && data.gateway) {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = data.gateway;
-          for (const [k, v] of Object.entries(data.fields)) {
-            const input = document.createElement('input');
-            input.type = 'hidden'; input.name = k; input.value = v;
-            form.appendChild(input);
+        const ct = (res.headers.get('content-type') || '').toLowerCase();
+  
+        // ❶ 後端回「HTML mpg-form」：把整段 HTML 寫進 popup（會自動送出到藍新）
+        if (ct.includes('text/html')) {
+          const html = await res.text();
+          if (popup) {
+            popup.document.open();
+            popup.document.write(html);
+            popup.document.close();
+          } else {
+            // 後備：若 popup 被擋，用本頁寫入
+            document.open();
+            document.write(html);
+            document.close();
           }
-          document.body.appendChild(form);
-          form.submit();
           return;
         }
   
-        // 備援：如果後端只回 URL，也能跳轉
-        const payUrl = data.url || data.pay_url || data.PayUrl;
-        if (payUrl) { window.location.href = payUrl; return; }
+        // ❷ 後端回「JSON { gateway, fields }」
+        if (ct.includes('application/json')) {
+          const data = await res.json();
   
-        msg.textContent = '伺服器未回傳可用的支付資料。';
-        msg.className = 'note err';
+          if (data.fields && data.gateway) {
+            const f = (popup && !popup.closed) ? popup.document.createElement('form')
+                                               : document.createElement('form');
+            f.method = 'POST';
+            f.action = data.gateway;
+            for (const [k, v] of Object.entries(data.fields)) {
+              const input = (popup && !popup.closed) ? popup.document.createElement('input')
+                                                     : document.createElement('input');
+              input.type = 'hidden'; input.name = k; input.value = v;
+              f.appendChild(input);
+            }
+            if (popup && !popup.closed) {
+              popup.document.body.appendChild(f);
+              f.submit();
+            } else {
+              document.body.appendChild(f);
+              f.submit();
+            }
+            return;
+          }
+  
+          // 備援：若只回 URL
+          const payUrl = data.url || data.pay_url || data.PayUrl;
+          if (payUrl) { (popup && !popup.closed ? popup : window).location.href = payUrl; return; }
+        }
+  
+        throw new Error('伺服器未回傳可用的支付資料');
       } catch (err) {
         console.error(err);
+        if (popup && !popup.closed) popup.close();
         msg.textContent = '建立付款失敗，請稍後再試。';
         msg.className = 'note err';
       } finally {
@@ -174,6 +205,7 @@
       }
     });
   </script>
+  
   
 </body>
 </html>
