@@ -112,69 +112,80 @@
     const form   = document.getElementById('orderForm');
     const payBtn = document.getElementById('payBtn');
     const msg    = document.getElementById('msg');
-  
+    
+    // 你的 Edge Function
     const FUNCTION_URL = "https://fqhjwakhdizopjnnidni.functions.supabase.co/functions/v1/pay";
-  
+    
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       msg.textContent = ''; msg.className = 'note';
-  
+    
       const email = (document.getElementById('email').value || '').trim();
       const name  = (document.getElementById('name').value  || '').trim();
-      if (!/.+@.+\..+/.test(email)){ msg.textContent='Email 格式不正確。'; msg.className='note err'; return; }
-  
+      if (!/.+@.+\..+/.test(email)){
+        msg.textContent='Email 格式不正確。'; msg.className='note err'; return;
+      }
+    
       payBtn.disabled = true;
       const prev = payBtn.innerHTML;
       payBtn.innerHTML = '<span class="spin"></span>建立付款…';
-  
+    
       try {
+        // 跟後端要 mpg_gateway 需要的欄位
         const res = await fetch(FUNCTION_URL, {
-  method: 'POST',
-  credentials: 'omit',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxaGp3YWtoZGl6b3Bqbm5pZG5pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU0MzcyNzAsImV4cCI6MjA3MTAxMzI3MH0.opToqcaOlh1UVdpXf4Gh9zjl8vWgkr35RPsYHkkaItY'
-  },
-  body: JSON.stringify({
-    email, name,
-    productId: 'busan-5d',
-    returnUrl: 'https://busantrip.vercel.app/paid.html'
-  })
-});
-
-  
+          method: 'POST',
+          credentials: 'omit',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, name })
+        });
+    
         if (!res.ok) throw new Error(await res.text());
         const ct = (res.headers.get('content-type') || '').toLowerCase();
-  
-        // ❶ 後端回 HTML（mpg-form）→ 直接在同頁寫入，會自動送到藍新
-        if (ct.includes('text/html')) {
-          const html = await res.text();
-          document.open();
-          document.write(html);
-          document.close();
-          return;
-        }
-  
-        // ❷ 後端回 JSON { gateway, fields } → 同頁建立隱藏表單並 submit
+    
+        // 後端回 JSON：{ url, postForm, orderNo }
         if (ct.includes('application/json')) {
           const data = await res.json();
+    
+          if (data.postForm && data.url) {
+            const f = document.createElement('form');
+            f.method = 'POST';
+            f.action = data.url;               // 例如 https://core.newebpay.com/MPG/mpg_gateway
+            f.acceptCharset = 'utf-8';
+            Object.entries(data.postForm).forEach(([k, v]) => {
+              const i = document.createElement('input');
+              i.type = 'hidden'; i.name = k; i.value = v;
+              f.appendChild(i);
+            });
+            document.body.appendChild(f);
+            f.submit();                        // ★ 關鍵：用「POST」進入藍新
+            return;
+          }
+    
+          // 相容舊格式 { gateway, fields }
           if (data.fields && data.gateway) {
             const f = document.createElement('form');
             f.method = 'POST';
             f.action = data.gateway;
-            for (const [k, v] of Object.entries(data.fields)) {
+            Object.entries(data.fields).forEach(([k, v]) => {
               const i = document.createElement('input');
               i.type = 'hidden'; i.name = k; i.value = v;
               f.appendChild(i);
-            }
+            });
             document.body.appendChild(f);
             f.submit();
             return;
           }
-          const payUrl = data.url || data.pay_url || data.PayUrl;
-          if (payUrl) { window.location.href = payUrl; return; }
+    
+          throw new Error('pay() 未回傳可用欄位');
         }
-  
+    
+        // 後端回 HTML（很少用）→ 直接寫入頁面
+        if (ct.includes('text/html')) {
+          const html = await res.text();
+          document.open(); document.write(html); document.close();
+          return;
+        }
+    
         throw new Error('伺服器未回傳可用的支付資料');
       } catch (err) {
         console.error(err);
@@ -185,7 +196,8 @@
         payBtn.innerHTML = prev;
       }
     });
-  </script>  
+    </script>
+    
   
   
 </body>
