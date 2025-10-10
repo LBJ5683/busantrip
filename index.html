@@ -224,6 +224,16 @@ input[type="email"].invalid{
 
 
   </style>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTMJ4F5XP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-NCTMJ4F5XP');
+</script>
+
 </head>
 <body>
   <!-- Header -->
@@ -383,7 +393,6 @@ input[type="email"].invalid{
     })();
     </script>
     
-    
 
   <script>
     (function () {
@@ -395,6 +404,14 @@ input[type="email"].invalid{
         if (!btn) return;
   
         e.preventDefault();
+
+        if (typeof gtag === "function") {
+      gtag('event', 'click_buy_now', {
+        event_category: 'button',
+        event_label: 'Busan PDF'
+      });
+    }
+
         window.location.href = "order.html";
       });
     })();
