@@ -196,17 +196,50 @@ input[type="email"].invalid{
 }
 .ig-btn:hover{ background:rgba(31,122,140,.08); }
 
+/* ====== JieJourneys 通用頂欄（獨立頁可用） ====== */
+.jj-topbar{
+  position: sticky; top: 0; z-index: 1000;
+  background: #fff; border-bottom: 1px solid rgba(0,0,0,.06);
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.jj-brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:#1f2937; }
+.jj-brand img{ width:40px; height:40px; border-radius:8px; object-fit:cover; }
+.jj-title{ font-weight:700; font-size:18px; }
+
+.jj-actions{ display:flex; align-items:center; gap:10px; }
+.jj-btn{
+  appearance:none; border:1.5px solid #1f7a8c; background:#f0f9fb; color:#1f7a8c;
+  padding:8px 12px; border-radius:12px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center;
+}
+.jj-btn:hover{ background:#1f7a8c; color:#fff; }
+
+/* 手機優化 */
+@media (max-width: 640px){
+  .jj-topbar{ padding:8px 10px; }
+  .jj-brand img{ width:32px; height:32px; }
+  .jj-title{ font-size:14px; }
+  .jj-btn{ padding:6px 10px; font-size:14px; border-radius:10px; }
+}
+
+
   </style>
 </head>
 <body>
   <!-- Header -->
-  <header>
-    <a href="#" class="brand" aria-label="回首頁">
+  <header class="jj-topbar">
+    <a class="jj-brand" id="homeLink" href="https://www.jiejourneys.com/" aria-label="回首頁">
       <img src="assets/logo.jpg" alt="JieJourneys Logo">
-      <span>JieJourneys</span>
+      <span class="jj-title">JieJourneys｜旅杰</span>
     </a>
-    <a class="header-btn" href="/contact.html" rel="noopener">聯絡我們</a>
+  
+    <nav class="jj-actions">
+      <button type="button" class="jj-btn" id="jjBack">← 回上一頁</button>
+      <a class="jj-btn" id="jjHome" href="https://www.jiejourneys.com/">回首頁</a>
+    </nav>
   </header>
+  
+  
 
   <main class="container">
     <!-- 購買主視覺區：左文案 + 右預覽/表單 -->
@@ -335,6 +368,23 @@ input[type="email"].invalid{
     <div>服務時間：週一～週五 09:00–17:00</div>
   </footer>
   
+  <script>
+    (function () {
+      // 一點「回上一頁」就固定回這個網址
+      const TARGET_BACK_URL = "https://www.jiejourneys.com/busan/index.html";
+    
+      const backBtn = document.getElementById("jjBack");
+      if (backBtn) {
+        backBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          location.href = TARGET_BACK_URL;
+        });
+      }
+    })();
+    </script>
+    
+    
+
   <script>
     (function () {
       console.log("payment script loaded");
