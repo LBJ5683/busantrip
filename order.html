@@ -69,6 +69,17 @@
     @keyframes spin{to{transform:rotate(360deg)}}
     @media(max-width:640px){ .grid{grid-template-columns:1fr} .summary{grid-template-columns:1fr} }
   </style>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-NCTMJ4F5XP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-NCTMJ4F5XP');
+</script>
+
+
 </head>
 <body>
   <div class="wrap">
@@ -100,8 +111,8 @@
         </div>
 
         <div class="actions">
-          <button id="payBtn" class="btn" type="submit">前往付款</button>
-          <a class="btn ghost" href="index.html">返回</a>
+          <button id="payBtn" class="btn" type="submit" data-event="busanPDForder_purchase" data-item="nav">前往付款</button>
+          <a class="btn ghost" href="index.html" data-event="busanPDForder_back" data-item="nav">返回</a>
           <span id="msg" class="note"></span>
         </div>
       </form>
@@ -197,7 +208,21 @@
       }
     });
     </script>
-    
+ 
+ <script>
+  document.addEventListener('click', function (e) {
+    const el = e.target.closest('[data-event]');
+    if (!el || typeof gtag !== 'function') return;
+    gtag('event', el.dataset.event, {
+      page_path: location.pathname,
+      item    : el.dataset.item || '',
+      section : el.dataset.section || '',
+      platform: el.dataset.platform || '',
+      url     : el.href || ''
+    });
+  }, { capture:true });
+  </script>
+  
   
   
 </body>
