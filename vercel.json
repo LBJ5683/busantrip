@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "destination": "https://www.jiejourneys.com/busan/journeys/$1",
+      "permanent": true
+    }
+  ]
+}
